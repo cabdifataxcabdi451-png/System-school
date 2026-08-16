@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Al-Furqaan School System</title>
+<meta name="app-version" content="1.0.1">
+<style>
+  :root{
+    --primary:#1e3a5f;
+    --primary-light:#2c5282;
+    --accent:#d69e2e;
+    --accent2:#38a169;
+    --danger:#e53e3e;
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --text:#1a202c;
+    --muted:#718096;
+    --border:#e2e8f0;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  /* ===== LOGIN ===== */
+  #loginScreen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,var(--accent) 140%);
+    padding:20px;
+  }
+  .login-box{
+    background:var(--card);width:100%;max-width:420px;border-radius:var(--radius);
+    padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.3);
+    animation:fadeUp .5s ease;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .login-logo{
+    width:64px;height:64px;border-radius:50%;background:var(--primary);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+    color:#fff;font-size:28px;font-weight:bold;
+  }
+  .login-box h1{text-align:center;font-size:22px;color:var(--primary);margin-bottom:4px;}
+  .login-box p.sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:24px;}
+  .role-tabs{display:flex;gap:6px;margin-bottom:20px;background:var(--bg);padding:5px;border-radius:10px;}
+  .role-tab{
+    flex:1;text-align:center;padding:9px 4px;border-radius:8px;font-size:12.5px;
+    cursor:pointer;color:var(--muted);font-weight:600;transition:.2s;
+  }
+  .role-tab.active{background:var(--primary);color:#fff;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text);}
+  .field input,.field select{
+    width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;
+    font-size:14px;outline:none;transition:.2s;
+  }
+  .field input:focus,.field select:focus{border-color:var(--primary-light);}
+  .btn{
+    width:100%;padding:12px;border:none;border-radius:8px;background:var(--primary);
+    color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .btn:hover{background:var(--primary-light);}
+  .btn.small{width:auto;padding:8px 16px;font-size:13px;}
+  .btn.accent{background:var(--accent2);}
+  .btn.danger{background:var(--danger);}
+  .btn.outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+  .login-error{
+    background:#fed7d7;color:#c53030;padding:10px;border-radius:8px;font-size:13px;
+    margin-bottom:14px;display:none;
+  }
+  .login-hint{
+    margin-top:18px;background:#ebf8ff;padding:10px 12px;border-radius:8px;
+    font-size:11.5px;color:#2c5282;line-height:1.6;
+  }
+  /* ===== APP SHELL ===== */
+  #app{display:none;min-height:100vh;}
+  .topbar{
+    background:var(--primary);color:#fff;padding:14px 22px;display:flex;
+    align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;}
+  .topbar-right{display:flex;align-items:center;gap:14px;font-size:13px;}
+  .badge-role{background:var(--accent);color:#1a202c;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .lang-toggle{
+    background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;
+    padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .lang-toggle:hover{background:rgba(255,255,255,.28);}
+  .greeting-banner{
+    display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,var(--primary),var(--primary-light));
+    color:#fff;padding:18px 22px;border-radius:var(--radius);margin-bottom:20px;
+  }
+  .greeting-icon{font-size:34px;}
+  .greeting-main{font-size:17px;font-weight:800;}
+  .greeting-sub{font-size:12.5px;opacity:.85;margin-top:2px;}
+  .update-banner{
+    position:fixed;top:0;left:0;right:0;z-index:300;
+    background:linear-gradient(90deg,#d69e2e,#dd6b20);color:#1a202c;
+    padding:12px 20px;display:none;align-items:center;justify-content:center;gap:16px;
+    font-size:13.5px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.2);
+    animation:slideDown .4s ease;
+  }
+  .update-banner.show{display:flex;}
+  @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+  .update-banner button{
+    background:#1a202c;color:#fff;border:none;padding:7px 16px;border-radius:20px;
+    font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .update-banner button:hover{background:#2d3748;}
+  .update-banner .dismiss{background:transparent;color:#1a202c;text-decoration:underline;padding:7px 8px;}
+  .layout{display:flex;}
+  .sidebar{
+    width:220px;background:#fff;min-height:calc(100vh - 58px);border-right:1px solid var(--border);
+    padding:16px 10px;
+  }
+  .nav-item{
+    padding:11px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+    color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:.15s;
+  }
+  .nav-item:hover{background:var(--bg);color:var(--text);}
+  .nav-item.active{background:var(--primary);color:#fff;}
+  .main{flex:1;padding:24px;max-width:1200px;}
+  .page{display:none;animation:fadeUp .3s ease;}
+  .page.active{display:block;}
+  .page-title{font-size:22px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+  .page-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+  .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);}
+  .stat-card .num{font-size:26px;font-weight:800;color:var(--primary);}
+  .stat-card .lbl{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .panel{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:20px;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .panel-head h3{font-size:16px;color:var(--text);}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:right;padding:10px;background:var(--bg);color:var(--muted);font-weight:700;font-size:12px;text-transform:uppercase;}
+  td{padding:10px;border-bottom:1px solid var(--border);}
+  tr:hover td{background:#fafcff;}
+  .tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .tag.green{background:#c6f6d5;color:#276749;}
+  .tag.red{background:#fed7d7;color:#c53030;}
+  .tag.yellow{background:#fefcbf;color:#975a16;}
+  .icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px 8px;border-radius:6px;}
+  .icon-btn:hover{background:var(--bg);}
+  .search-input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:220px;}
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal{background:#fff;border-radius:var(--radius);padding:26px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:17px;color:var(--primary);margin-bottom:18px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:#1a202c;color:#fff;padding:12px 22px;border-radius:8px;font-size:13.5px;
+    z-index:200;display:none;box-shadow:0 8px 20px rgba(0,0,0,.3);
+  }
+  .flex-between{display:flex;justify-content:space-between;align-items:center;}
+  .quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;}
+  .quick-card{
+    background:var(--bg);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;
+    border:1px solid var(--border);border-top:3px solid var(--qc);transition:.2s;
+  }
+  .quick-card:hover{transform:translateY(-3px);box-shadow:0 8px 16px rgba(0,0,0,.08);background:#fff;}
+  .quick-icon{font-size:24px;margin-bottom:6px;}
+  .quick-num{font-size:19px;font-weight:800;color:var(--text);}
+  .quick-lbl{font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:600;}
+  .bar-track{height:10px;background:var(--bg);border-radius:20px;overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),#68d391);border-radius:20px;transition:.4s;}
+  @media(max-width:768px){
+    .cards-row[style*="1.3fr"]{grid-template-columns:1fr !important;}
+  }
+  .avatar-circle{
+    width:34px;height:34px;border-radius:50%;background:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#1a202c;
+  }
+  @media(max-width:768px){
+    .sidebar{position:fixed;left:-220px;top:58px;z-index:60;transition:.3s;background:#fff;}
+    .sidebar.open{left:0;}
+    .main{padding:14px;}
+    .grid2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="update-banner" id="updateBanner">
+  <span>🔄 Nooc Cusub ayaa la heli karaa! / A new version is available!</span>
+  <button onclick="location.reload(true)">Cusboonaysii Hadda / Refresh Now</button>
+  <span class="dismiss" onclick="dismissUpdate()">Mar dambe / Later</span>
+</div>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo" id="loginLogo">🎓</div>
+    <h1 id="loginSchoolName">Al-Furqaan School</h1>
+    <p class="sub">Nidaamka Maamulka Dugsiga</p>
+    <div class="role-tabs" id="roleTabs">
+      <div class="role-tab active" data-role="admin">Admin</div>
+      <div class="role-tab" data-role="teacher">Macalin</div>
+      <div class="role-tab" data-role="student">Arday</div>
+      <div class="role-tab" data-role="parent">Waalid</div>
+    </div>
+    <div class="login-error" id="loginError">Username ama password waa khalad.</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Geli username-kaaga">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Geli password-kaaga">
+    </div>
+    <button class="btn" onclick="doLogin()">Gal (Login)</button>
+  </div>
+</div>
+
+<!-- ================= MAIN APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left" id="topbarSchoolName">🎓 Al-Furqaan School</div>
+    <div class="topbar-right">
+      <span class="badge-role" id="curRoleBadge"></span>
+      <button class="lang-toggle" id="langBtn" onclick="toggleLang()">EN</button>
+      <div class="avatar-circle" id="curAvatar">A</div>
+      <span id="curName"></span>
+      <button class="btn small outline" id="logoutBtn" style="color:#fff;border-color:rgba(255,255,255,.4)" onclick="logout()">Ka bax</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main" id="mainArea"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==================================================
+   DATA LAYER — localStorage based
+================================================== */
+const DB_KEY = 'alfurqaan_school_db_v1';
+
+function seedData(){
+  return {
+    users: [
+      {id:'u1', username:'admin', password:'admin123', role:'admin', name:'Maamulaha Guud', linkedId:null},
+      {id:'u2', username:'macalin1', password:'teach123', role:'teacher', name:'Ust. Cabdiraxman Xasan', linkedId:'t1'},
+      {id:'u3', username:'arday1', password:'stud123', role:'student', name:'Xamse Cali Warsame', linkedId:'s1'},
+      {id:'u4', username:'waalid1', password:'par123', role:'parent', name:'Cali Warsame Nur', linkedId:'p1'}
+    ],
+    teachers: [
+      {id:'t1', name:'Ust. Cabdiraxman Xasan', subject:'Xisaab', phone:'615000001'},
+      {id:'t2', name:'Ust. Faadumo Ibraahim', subject:'Ingiriisi', phone:'615000002'}
+    ],
+    classes: [
+      {id:'c1', name:'Fasalka 1aad', teacherId:'t1'},
+      {id:'c2', name:'Fasalka 2aad', teacherId:'t2'},
+      {id:'c3', name:'Fasalka 3aad', teacherId:'t1'},
+      {id:'c4', name:'Fasalka 4aad', teacherId:'t2'},
+      {id:'c5', name:'Fasalka 5aad', teacherId:'t1'},
+      {id:'c6', name:'Fasalka 6aad', teacherId:'t2'},
+      {id:'c7', name:'Fasalka 7aad', teacherId:'t1'},
+      {id:'c8', name:'Fasalka 8aad', teacherId:'t2'}
+    ],
+    students: [
+      {id:'s1', name:'Xamse Cali Warsame', classId:'c1', parentId:'p1', gender:'Lab', phone:'615111111'},
+      {id:'s2', name:'Hodan Aadan Yusuf', classId:'c1', parentId:'p2', gender:'Dhedig', phone:'615222222'},
+      {id:'s3', name:'Yusuf Maxamed Nuur', classId:'c1', parentId:'p3', gender:'Lab', phone:'615333333'},
+      {id:'s4', name:'Yusuf Yusuf Ibraahim', classId:'c1', parentId:'p4', gender:'Lab', phone:'615100004'},
+      {id:'s5', name:'Mustafe Xasan Kaariye', classId:'c1', parentId:'p5', gender:'Lab', phone:'615100005'},
+      {id:'s6', name:'Cige Faarax Yusuf', classId:'c1', parentId:'p6', gender:'Lab', phone:'615100006'},
+      {id:'s7', name:'Cali Cabdi Ibraahim', classId:'c1', parentId:'p7', gender:'Lab', phone:'615100007'},
+      {id:'s8', name:'Xeydar Cabdi Kaariye', classId:'c1', parentId:'p8', gender:'Lab', phone:'615100008'},
+      {id:'s9', name:'Ubax Diiriye Axmed', classId:'c1', parentId:'p9', gender:'Dhedig', phone:'615100009'},
+      {id:'s10', name:'Sara Cali Xasan', classId:'c1', parentId:'p10', gender:'Dhedig', phone:'615100010'},
+      {id:'s11', name:'Hibo Yusuf Cali', classId:'c1', parentId:'p11', gender:'Dhedig', phone:'615100011'},
+      {id:'s12', name:'Ismaaciil Xasan Nuur', classId:'c2', parentId:'p12', gender:'Lab', phone:'615100012'},
+      {id:'s13', name:'Amina Axmed Ismaaciil', classId:'c2', parentId:'p13', gender:'Dhedig', phone:'615100013'},
+      {id:'s14', name:'Sara Aadan Rooble', classId:'c2', parentId:'p14', gender:'Dhedig', phone:'615100014'},
+      {id:'s15', name:'Guuled Maxamed Kaariye', classId:'c2', parentId:'p15', gender:'Lab', phone:'615100015'},
+      {id:'s16', name:'Iqra Kaariye Ismaaciil', classId:'c2', parentId:'p16', gender:'Dhedig', phone:'615100016'},
+      {id:'s17', name:'Cabdullaahi Aadan Ibraahim', classId:'c2', parentId:'p17', gender:'Lab', phone:'615100017'},
+      {id:'s18', name:'Sahra Ibraahim Cabdi', classId:'c2', parentId:'p18', gender:'Dhedig', phone:'615100018'},
+      {id:'s19', name:'Sagal Diiriye Ismaaciil', classId:'c2', parentId:'p19', gender:'Dhedig', phone:'615100019'},
+      {id:'s20', name:'Zakariye Axmed Maxamed', classId:'c2', parentId:'p20', gender:'Lab', phone:'615100020'},
+      {id:'s21', name:'Anisa Maxamed Cabdulle', classId:'c2', parentId:'p21', gender:'Dhedig', phone:'615100021'},
+      {id:'s22', name:'Shire Ibraahim Xasan', classId:'c2', parentId:'p22', gender:'Lab', phone:'615100022'},
+      {id:'s23', name:'Fowsiya Yusuf Kaariye', classId:'c3', parentId:'p23', gender:'Dhedig', phone:'615100023'},
+      {id:'s24', name:'Warsame Aadan Ibraahim', classId:'c3', parentId:'p24', gender:'Lab', phone:'615100024'},
+      {id:'s25', name:'Warsame Ismaaciil Xuseen', classId:'c3', parentId:'p25', gender:'Lab', phone:'615100025'},
+      {id:'s26', name:'Xuseen Cabdulle Cumar', classId:'c3', parentId:'p26', gender:'Lab', phone:'615100026'},
+      {id:'s27', name:'Nasib Sheekh Faarax', classId:'c3', parentId:'p27', gender:'Lab', phone:'615100027'},
+      {id:'s28', name:'Halima Yusuf Cali', classId:'c3', parentId:'p28', gender:'Dhedig', phone:'615100028'},
+      {id:'s29', name:'Xeydar Ciise Xuseen', classId:'c3', parentId:'p29', gender:'Lab', phone:'615100029'},
+      {id:'s30', name:'Ayan Cabdulle Faarax', classId:'c3', parentId:'p30', gender:'Dhedig', phone:'615100030'},
+      {id:'s31', name:'Ubax Nuur Ahmed', classId:'c3', parentId:'p31', gender:'Dhedig', phone:'615100031'},
+      {id:'s32', name:'Sahra Aadan Cabdi', classId:'c3', parentId:'p32', gender:'Dhedig', phone:'615100032'},
+      {id:'s33', name:'Ilyaas Warsame Sheekh', classId:'c3', parentId:'p33', gender:'Lab', phone:'615100033'},
+      {id:'s34', name:'Guuled Ismaaciil Cabdulle', classId:'c4', parentId:'p34', gender:'Lab', phone:'615100034'},
+      {id:'s35', name:'Hindiya Yusuf Kaariye', classId:'c4', parentId:'p35', gender:'Dhedig', phone:'615100035'},
+      {id:'s36', name:'Xasan Ciise Xuseen', classId:'c4', parentId:'p36', gender:'Lab', phone:'615100036'},
+      {id:'s37', name:'Amina Xuseen Sheekh', classId:'c4', parentId:'p37', gender:'Dhedig', phone:'615100037'},
+      {id:'s38', name:'Salaad Cali Xuseen', classId:'c4', parentId:'p38', gender:'Lab', phone:'615100038'},
+      {id:'s39', name:'Rooble Xasan Diiriye', classId:'c4', parentId:'p39', gender:'Lab', phone:'615100039'},
+      {id:'s40', name:'Cumar Axmed Xasan', classId:'c4', parentId:'p40', gender:'Lab', phone:'615100040'},
+      {id:'s41', name:'Faarax Cumar Ciise', classId:'c4', parentId:'p41', gender:'Lab', phone:'615100041'},
+      {id:'s42', name:'Xasan Axmed Diiriye', classId:'c4', parentId:'p42', gender:'Lab', phone:'615100042'},
+      {id:'s43', name:'Maxamed Ibraahim Axmed', classId:'c4', parentId:'p43', gender:'Lab', phone:'615100043'},
+      {id:'s44', name:'Cali Sheekh Nuur', classId:'c4', parentId:'p44', gender:'Lab', phone:'615100044'},
+      {id:'s45', name:'Mustafe Sheekh Kaariye', classId:'c5', parentId:'p45', gender:'Lab', phone:'615100045'},
+      {id:'s46', name:'Cabdiraxmaan Rooble Cabdulle', classId:'c5', parentId:'p46', gender:'Lab', phone:'615100046'},
+      {id:'s47', name:'Naciima Ciise Maxamed', classId:'c5', parentId:'p47', gender:'Dhedig', phone:'615100047'},
+      {id:'s48', name:'Fowsiya Axmed Rooble', classId:'c5', parentId:'p48', gender:'Dhedig', phone:'615100048'},
+      {id:'s49', name:'Amina Ibraahim Ibraahim', classId:'c5', parentId:'p49', gender:'Dhedig', phone:'615100049'},
+      {id:'s50', name:'Ismaaciil Cali Axmed', classId:'c5', parentId:'p50', gender:'Lab', phone:'615100050'},
+      {id:'s51', name:'Cige Ibraahim Warsame', classId:'c5', parentId:'p51', gender:'Lab', phone:'615100051'},
+      {id:'s52', name:'Ilyaas Aadan Ibraahim', classId:'c5', parentId:'p52', gender:'Lab', phone:'615100052'},
+      {id:'s53', name:'Cabdirisaaq Cumar Nuur', classId:'c5', parentId:'p53', gender:'Lab', phone:'615100053'},
+      {id:'s54', name:'Bashiir Sheekh Maxamed', classId:'c5', parentId:'p54', gender:'Lab', phone:'615100054'},
+      {id:'s55', name:'Barkhad Cabdulle Ciise', classId:'c5', parentId:'p55', gender:'Lab', phone:'615100055'},
+      {id:'s56', name:'Farxaan Faarax Maxamed', classId:'c6', parentId:'p56', gender:'Lab', phone:'615100056'},
+      {id:'s57', name:'Axmed Faarax Ismaaciil', classId:'c6', parentId:'p57', gender:'Lab', phone:'615100057'},
+      {id:'s58', name:'Maryan Diiriye Yusuf', classId:'c6', parentId:'p58', gender:'Dhedig', phone:'615100058'},
+      {id:'s59', name:'Maxamed Ismaaciil Cumar', classId:'c6', parentId:'p59', gender:'Lab', phone:'615100059'},
+      {id:'s60', name:'Saciid Cabdi Maxamed', classId:'c6', parentId:'p60', gender:'Lab', phone:'615100060'},
+      {id:'s61', name:'Halima Faarax Xasan', classId:'c6', parentId:'p61', gender:'Dhedig', phone:'615100061'},
+      {id:'s62', name:'Ayaan Ibraahim Nuur', classId:'c6', parentId:'p62', gender:'Dhedig', phone:'615100062'},
+      {id:'s63', name:'Sara Ciise Cabdi', classId:'c6', parentId:'p63', gender:'Dhedig', phone:'615100063'},
+      {id:'s64', name:'Nasib Ciise Warsame', classId:'c6', parentId:'p64', gender:'Lab', phone:'615100064'},
+      {id:'s65', name:'Saciid Warsame Sheekh', classId:'c6', parentId:'p65', gender:'Lab', phone:'615100065'},
+      {id:'s66', name:'Ifrah Cabdi Faarax', classId:'c6', parentId:'p66', gender:'Dhedig', phone:'615100066'},
+      {id:'s67', name:'Abshir Ismaaciil Warsame', classId:'c7', parentId:'p67', gender:'Lab', phone:'615100067'},
+      {id:'s68', name:'Sagal Diiriye Diiriye', classId:'c7', parentId:'p68', gender:'Dhedig', phone:'615100068'},
+      {id:'s69', name:'Anisa Ciise Ciise', classId:'c7', parentId:'p69', gender:'Dhedig', phone:'615100069'},
+      {id:'s70', name:'Aadan Xuseen Maxamed', classId:'c7', parentId:'p70', gender:'Lab', phone:'615100070'},
+      {id:'s71', name:'Cige Ciise Yusuf', classId:'c7', parentId:'p71', gender:'Lab', phone:'615100071'},
+      {id:'s72', name:'Faadumo Aadan Axmed', classId:'c7', parentId:'p72', gender:'Dhedig', phone:'615100072'},
+      {id:'s73', name:'Hindiya Rooble Xasan', classId:'c7', parentId:'p73', gender:'Dhedig', phone:'615100073'},
+      {id:'s74', name:'Rooble Maxamed Xasan', classId:'c7', parentId:'p74', gender:'Lab', phone:'615100074'},
+      {id:'s75', name:'Faarax Maxamed Ibraahim', classId:'c7', parentId:'p75', gender:'Lab', phone:'615100075'},
+      {id:'s76', name:'Amina Cabdulle Ibraahim', classId:'c7', parentId:'p76', gender:'Dhedig', phone:'615100076'},
+      {id:'s77', name:'Kariim Maxamed Sheekh', classId:'c7', parentId:'p77', gender:'Lab', phone:'615100077'},
+      {id:'s78', name:'Yasmin Yusuf Maxamed', classId:'c7', parentId:'p78', gender:'Dhedig', phone:'615100078'},
+      {id:'s79', name:'Ubax Yusuf Faarax', classId:'c8', parentId:'p79', gender:'Dhedig', phone:'615100079'},
+      {id:'s80', name:'Nasib Xuseen Rooble', classId:'c8', parentId:'p80', gender:'Lab', phone:'615100080'},
+      {id:'s81', name:'Yasmin Maxamed Warsame', classId:'c8', parentId:'p81', gender:'Dhedig', phone:'615100081'},
+      {id:'s82', name:'Rahma Cabdulle Cabdi', classId:'c8', parentId:'p82', gender:'Dhedig', phone:'615100082'},
+      {id:'s83', name:'Shire Cabdi Ahmed', classId:'c8', parentId:'p83', gender:'Lab', phone:'615100083'},
+      {id:'s84', name:'Halima Axmed Nuur', classId:'c8', parentId:'p84', gender:'Dhedig', phone:'615100084'},
+      {id:'s85', name:'Zakariye Xuseen Xasan', classId:'c8', parentId:'p85', gender:'Lab', phone:'615100085'},
+      {id:'s86', name:'Iqra Ciise Diiriye', classId:'c8', parentId:'p86', gender:'Dhedig', phone:'615100086'},
+      {id:'s87', name:'Xeydar Xuseen Cabdi', classId:'c8', parentId:'p87', gender:'Lab', phone:'615100087'},
+      {id:'s88', name:'Cabdiraxmaan Xasan Cabdi', classId:'c8', parentId:'p88', gender:'Lab', phone:'615100088'},
+      {id:'s89', name:'Bashiir Xuseen Cabdulle', classId:'c8', parentId:'p89', gender:'Lab', phone:'615100089'},
+      {id:'s90', name:'Ismaaciil Cabdi Xuseen', classId:'c8', parentId:'p90', gender:'Lab', phone:'615100090'}
+    ],
+    parents: [
+      {id:'p1', name:'Cali Warsame Nur', phone:'615444001'},
+      {id:'p2', name:'Aadan Yusuf Sheekh', phone:'615444002'},
+      {id:'p3', name:'Maxamed Nuur Cabdi', phone:'615444003'},
+      {id:'p4', name:'Waalidka Yusuf', phone:'615400004'},
+      {id:'p5', name:'Waalidka Mustafe', phone:'615400005'},
+      {id:'p6', name:'Waalidka Cige', phone:'615400006'},
+      {id:'p7', name:'Waalidka Cali', phone:'615400007'},
+      {id:'p8', name:'Waalidka Xeydar', phone:'615400008'},
+      {id:'p9', name:'Waalidka Ubax', phone:'615400009'},
+      {id:'p10', name:'Waalidka Sara', phone:'615400010'},
+      {id:'p11', name:'Waalidka Hibo', phone:'615400011'},
+      {id:'p12', name:'Waalidka Ismaaciil', phone:'615400012'},
+      {id:'p13', name:'Waalidka Amina', phone:'615400013'},
+      {id:'p14', name:'Waalidka Sara', phone:'615400014'},
+      {id:'p15', name:'Waalidka Guuled', phone:'615400015'},
+      {id:'p16', name:'Waalidka Iqra', phone:'615400016'},
+      {id:'p17', name:'Waalidka Cabdullaahi', phone:'615400017'},
+      {id:'p18', name:'Waalidka Sahra', phone:'615400018'},
+      {id:'p19', name:'Waalidka Sagal', phone:'615400019'},
+      {id:'p20', name:'Waalidka Zakariye', phone:'615400020'},
+      {id:'p21', name:'Waalidka Anisa', phone:'615400021'},
+      {id:'p22', name:'Waalidka Shire', phone:'615400022'},
+      {id:'p23', name:'Waalidka Fowsiya', phone:'615400023'},
+      {id:'p24', name:'Waalidka Warsame', phone:'615400024'},
+      {id:'p25', name:'Waalidka Warsame', phone:'615400025'},
+      {id:'p26', name:'Waalidka Xuseen', phone:'615400026'},
+      {id:'p27', name:'Waalidka Nasib', phone:'615400027'},
+      {id:'p28', name:'Waalidka Halima', phone:'615400028'},
+      {id:'p29', name:'Waalidka Xeydar', phone:'615400029'},
+      {id:'p30', name:'Waalidka Ayan', phone:'615400030'},
+      {id:'p31', name:'Waalidka Ubax', phone:'615400031'},
+      {id:'p32', name:'Waalidka Sahra', phone:'615400032'},
+      {id:'p33', name:'Waalidka Ilyaas', phone:'615400033'},
+      {id:'p34', name:'Waalidka Guuled', phone:'615400034'},
+      {id:'p35', name:'Waalidka Hindiya', phone:'615400035'},
+      {id:'p36', name:'Waalidka Xasan', phone:'615400036'},
+      {id:'p37', name:'Waalidka Amina', phone:'615400037'},
+      {id:'p38', name:'Waalidka Salaad', phone:'615400038'},
+      {id:'p39', name:'Waalidka Rooble', phone:'615400039'},
+      {id:'p40', name:'Waalidka Cumar', phone:'615400040'},
+      {id:'p41', name:'Waalidka Faarax', phone:'615400041'},
+      {id:'p42', name:'Waalidka Xasan', phone:'615400042'},
+      {id:'p43', name:'Waalidka Maxamed', phone:'615400043'},
+      {id:'p44', name:'Waalidka Cali', phone:'615400044'},
+      {id:'p45', name:'Waalidka Mustafe', phone:'615400045'},
+      {id:'p46', name:'Waalidka Cabdiraxmaan', phone:'615400046'},
+      {id:'p47', name:'Waalidka Naciima', phone:'615400047'},
+      {id:'p48', name:'Waalidka Fowsiya', phone:'615400048'},
+      {id:'p49', name:'Waalidka Amina', phone:'615400049'},
+      {id:'p50', name:'Waalidka Ismaaciil', phone:'615400050'},
+      {id:'p51', name:'Waalidka Cige', phone:'615400051'},
+      {id:'p52', name:'Waalidka Ilyaas', phone:'615400052'},
+      {id:'p53', name:'Waalidka Cabdirisaaq', phone:'615400053'},
+      {id:'p54', name:'Waalidka Bashiir', phone:'615400054'},
+      {id:'p55', name:'Waalidka Barkhad', phone:'615400055'},
+      {id:'p56', name:'Waalidka Farxaan', phone:'615400056'},
+      {id:'p57', name:'Waalidka Axmed', phone:'615400057'},
+      {id:'p58', name:'Waalidka Maryan', phone:'615400058'},
+      {id:'p59', name:'Waalidka Maxamed', phone:'615400059'},
+      {id:'p60', name:'Waalidka Saciid', phone:'615400060'},
+      {id:'p61', name:'Waalidka Halima', phone:'615400061'},
+      {id:'p62', name:'Waalidka Ayaan', phone:'615400062'},
+      {id:'p63', name:'Waalidka Sara', phone:'615400063'},
+      {id:'p64', name:'Waalidka Nasib', phone:'615400064'},
+      {id:'p65', name:'Waalidka Saciid', phone:'615400065'},
+      {id:'p66', name:'Waalidka Ifrah', phone:'615400066'},
+      {id:'p67', name:'Waalidka Abshir', phone:'615400067'},
+      {id:'p68', name:'Waalidka Sagal', phone:'615400068'},
+      {id:'p69', name:'Waalidka Anisa', phone:'615400069'},
+      {id:'p70', name:'Waalidka Aadan', phone:'615400070'},
+      {id:'p71', name:'Waalidka Cige', phone:'615400071'},
+      {id:'p72', name:'Waalidka Faadumo', phone:'615400072'},
+      {id:'p73', name:'Waalidka Hindiya', phone:'615400073'},
+      {id:'p74', name:'Waalidka Rooble', phone:'615400074'},
+      {id:'p75', name:'Waalidka Faarax', phone:'615400075'},
+      {id:'p76', name:'Waalidka Amina', phone:'615400076'},
+      {id:'p77', name:'Waalidka Kariim', phone:'615400077'},
+      {id:'p78', name:'Waalidka Yasmin', phone:'615400078'},
+      {id:'p79', name:'Waalidka Ubax', phone:'615400079'},
+      {id:'p80', name:'Waalidka Nasib', phone:'615400080'},
+      {id:'p81', name:'Waalidka Yasmin', phone:'615400081'},
+      {id:'p82', name:'Waalidka Rahma', phone:'615400082'},
+      {id:'p83', name:'Waalidka Shire', phone:'615400083'},
+      {id:'p84', name:'Waalidka Halima', phone:'615400084'},
+      {id:'p85', name:'Waalidka Zakariye', phone:'615400085'},
+      {id:'p86', name:'Waalidka Iqra', phone:'615400086'},
+      {id:'p87', name:'Waalidka Xeydar', phone:'615400087'},
+      {id:'p88', name:'Waalidka Cabdiraxmaan', phone:'615400088'},
+      {id:'p89', name:'Waalidka Bashiir', phone:'615400089'},
+      {id:'p90', name:'Waalidka Ismaaciil', phone:'615400090'}
+    ],
+    subjects: [
+      {id:'sub1', name:'Xisaab'}, {id:'sub2', name:'Ingiriisi'},
+      {id:'sub3', name:'Diinta'}, {id:'sub4', name:'Sayniska'}
+    ],
+    grades: [
+      {id:'g1', studentId:'s1', subject:'Xisaab', term:'Semester 1', score:88},
+      {id:'g2', studentId:'s1', subject:'Ingiriisi', term:'Semester 1', score:75},
+      {id:'g3', studentId:'s2', subject:'Xisaab', term:'Semester 1', score:92}
+    ],
+    attendance: [
+      {id:'a1', studentId:'s1', date: new Date().toISOString().slice(0,10), status:'Xaadir'},
+      {id:'a2', studentId:'s2', date: new Date().toISOString().slice(0,10), status:'Maqan'}
+    ],
+    fees: [
+      {id:'f1', studentId:'s1', amount:50, paid:50, date:'2026-01-05', status:'La bixiyay'},
+      {id:'f2', studentId:'s2', amount:50, paid:0, date:'2026-02-01', status:'Sugaya'},
+      {id:'f3', studentId:'s3', amount:50, paid:25, date:'2026-02-01', status:'Qeyb ahaan'}
+    ],
+    announcements: [
+      {id:'an1', title:'Furitaanka Semester-ka 2', body:'Dugsigu wuxuu bilaabmayaa 1-da bisha soo socota.', date:'2026-08-01', author:'Maamulaha Guud'}
+    ],
+    settings: {
+      schoolName: 'Al-Furqaan School',
+      schoolLogo: '🎓',
+      address: 'Muqdisho, Soomaaliya',
+      phone: '615000000',
+      email: 'info@alfurqaan.edu.so',
+      currency: '$',
+      feeAmount: 50
+    }
+  };
+}
+
+function loadDB(){
+  let raw = localStorage.getItem(DB_KEY);
+  if(!raw){
+    const seed = seedData();
+    localStorage.setItem(DB_KEY, JSON.stringify(seed));
+    return seed;
+  }
+  const parsed = JSON.parse(raw);
+  // Migration: hubi in settings uu jiro fayllada hore loo kaydiyay
+  if(!parsed.settings){
+    parsed.settings = seedData().settings;
+    localStorage.setItem(DB_KEY, JSON.stringify(parsed));
+  }
+  return parsed;
+}
+function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
+let DB = loadDB();
+let CURRENT_USER = null;
+let ACTIVE_ROLE = 'admin';
+let LANG = localStorage.getItem('alfurqaan_lang') || 'so';
+
+function applyBranding(){
+  const s = DB.settings || {};
+  const logoHtml = s.schoolLogoImage
+    ? `<img src="${s.schoolLogoImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : (s.schoolLogo || '🎓');
+  document.getElementById('loginLogo').innerHTML = logoHtml;
+  document.getElementById('loginSchoolName').textContent = s.schoolName || 'Al-Furqaan School';
+  const topbarLogoHtml = s.schoolLogoImage
+    ? `<img src="${s.schoolLogoImage}" style="width:24px;height:24px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:6px">`
+    : (s.schoolLogo || '🎓') + ' ';
+  document.getElementById('topbarSchoolName').innerHTML = topbarLogoHtml + (s.schoolName || 'Al-Furqaan School');
+  document.title = s.schoolName || 'Al-Furqaan School System';
+}
+applyBranding();
+
+/* ==================================================
+   AUTO-UPDATE CHECKER
+   Marka aad file-ka GitHub-ka ku beddesho, kor u qaad
+   version-ka <meta name="app-version"> ee <head>, tusaale:
+   1.0.0 -> 1.0.1. Browser-ka fadhiya wuxuu si toos ah u
+   ogaanayaa isbeddelka oo tusi doona banner-ka "Nooc Cusub".
+================================================== */
+const CURRENT_VERSION = document.querySelector('meta[name="app-version"]').content;
+let updateDismissed = false;
+
+async function checkForUpdate(){
+  if(updateDismissed) return;
+  try{
+    const res = await fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) return;
+    const html = await res.text();
+    const match = html.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i);
+    if(match && match[1] !== CURRENT_VERSION){
+      document.getElementById('updateBanner').classList.add('show');
+    }
+  } catch(e){ /* offline or blocked - ignore silently */ }
+}
+function dismissUpdate(){
+  updateDismissed = true;
+  document.getElementById('updateBanner').classList.remove('show');
+}
+// Hubi marka bogga la furo, dabadeed hal mar 90 sekan kasta
+checkForUpdate();
+setInterval(checkForUpdate, 90000);
+// Hubi marka user-ku ku soo laabto tab-ka (ka yimid tab kale)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') checkForUpdate();
+});
+
+/* ==================================================
+   BILINGUAL SUPPORT (SO / EN)
+================================================== */
+const T = {
+  so:{
+    dashboard:'Dashboard', students:'🎒 Ardayda', teachers:'👨‍🏫 Macalimiinta', classes:'🏫 Fasallada',
+    grades:'📊 Dhigista', attendance:'📅 Xaadirinta', fees:'💰 Lacagaha', announcements:'📢 Ogeysiisyada',
+    users:'🔑 Users & Passwords', settings:'⚙️ Settings', logout:'Ka bax', welcome:'Soo dhawoow',
+    myStudents:'🎒 Ardaydayda', myGrades:'📊 Geli Dhigista', myAttendance:'📅 Geli Xaadirinta',
+    sMyGrades:'📊 Dhigistayda', sMyAttendance:'📅 Xaadirintayda', sMyFees:'💰 Lacagtayda',
+    pMyGrades:'📊 Dhigista Ilmaha', pMyAttendance:'📅 Xaadirinta Ilmaha', pMyFees:'💰 Lacagta Ilmaha',
+    roleAdmin:'Maamule', roleTeacher:'Macalin', roleStudent:'Arday', roleParent:'Waalid'
+  },
+  en:{
+    dashboard:'Dashboard', students:'🎒 Students', teachers:'👨‍🏫 Teachers', classes:'🏫 Classes',
+    grades:'📊 Grades', attendance:'📅 Attendance', fees:'💰 Fees', announcements:'📢 Announcements',
+    users:'🔑 Users & Passwords', settings:'⚙️ Settings', logout:'Log out', welcome:'Welcome',
+    myStudents:'🎒 My Students', myGrades:'📊 Enter Grades', myAttendance:'📅 Enter Attendance',
+    sMyGrades:'📊 My Grades', sMyAttendance:'📅 My Attendance', sMyFees:'💰 My Fees',
+    pMyGrades:'📊 Child Grades', pMyAttendance:'📅 Child Attendance', pMyFees:'💰 Child Fees',
+    roleAdmin:'Admin', roleTeacher:'Teacher', roleStudent:'Student', roleParent:'Parent'
+  }
+};
+function t(key){ return T[LANG][key] || key; }
+function toggleLang(){
+  LANG = LANG === 'so' ? 'en' : 'so';
+  localStorage.setItem('alfurqaan_lang', LANG);
+  document.getElementById('langBtn').textContent = LANG === 'so' ? 'EN' : 'SO';
+  if(CURRENT_USER){
+    buildSidebar();
+    const roleLabels = {admin:t('roleAdmin'),teacher:t('roleTeacher'),student:t('roleStudent'),parent:t('roleParent')};
+    document.getElementById('curRoleBadge').textContent = roleLabels[CURRENT_USER.role];
+    document.getElementById('logoutBtn').textContent = t('logout');
+    const activeNav = document.querySelector('.nav-item.active');
+    navigate(activeNav ? activeNav.dataset.nav : (CURRENT_USER.role==='admin'?'dashboard':CURRENT_USER.role+'-dashboard'));
+  }
+}
+function getGreeting(){
+  const hour = new Date().getHours();
+  let so, en, icon;
+  if(hour>=5 && hour<12){ so='Subax wanaagsan'; en='Good morning'; icon='🌅'; }
+  else if(hour>=12 && hour<15){ so='Duhur wanaagsan'; en='Good afternoon'; icon='☀️'; }
+  else if(hour>=15 && hour<19){ so='Galab wanaagsan'; en='Good evening'; icon='🌇'; }
+  else { so='Habeen wanaagsan'; en='Good night'; icon='🌙'; }
+  return {so, en, icon};
+}
+function greetingBanner(){
+  const g = getGreeting();
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString(LANG==='so'?'so':'en-US', {hour:'2-digit', minute:'2-digit'});
+  return `
+  <div class="greeting-banner">
+    <div class="greeting-icon">${g.icon}</div>
+    <div>
+      <div class="greeting-main">${g.so}, ${CURRENT_USER.name}!</div>
+      <div class="greeting-sub">${g.en}, ${CURRENT_USER.name} · ${timeStr}</div>
+    </div>
+  </div>`;
+}
+
+function uid(prefix){ return prefix + Math.random().toString(36).slice(2,9); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display='block';
+  setTimeout(()=> t.style.display='none', 2200);
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+function openModal(html){
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+/* ==================================================
+   LOGIN LOGIC
+================================================== */
+document.querySelectorAll('.role-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    ACTIVE_ROLE = tab.dataset.role;
+    document.getElementById('loginError').style.display='none';
+  });
+});
+
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const user = DB.users.find(x=> x.username===u && x.password===p && x.role===ACTIVE_ROLE);
+  if(!user){
+    document.getElementById('loginError').style.display='block';
+    return;
+  }
+  CURRENT_USER = user;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('curName').textContent = user.name;
+  document.getElementById('curAvatar').textContent = user.name.charAt(0);
+  const roleLabels = {admin:t('roleAdmin'),teacher:t('roleTeacher'),student:t('roleStudent'),parent:t('roleParent')};
+  document.getElementById('curRoleBadge').textContent = roleLabels[user.role];
+  document.getElementById('langBtn').textContent = LANG === 'so' ? 'EN' : 'SO';
+  document.getElementById('logoutBtn').textContent = t('logout');
+  buildSidebar();
+  navigate(user.role==='admin' ? 'dashboard' : (user.role==='teacher'?'t-dashboard': user.role==='student'?'s-dashboard':'p-dashboard'));
+}
+function logout(){
+  CURRENT_USER = null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+/* ==================================================
+   SIDEBAR / NAV
+================================================== */
+const NAV_CONFIG = {
+  admin:()=>[
+    {id:'dashboard', label:'🏠 '+t('dashboard')},
+    {id:'students', label:t('students')},
+    {id:'teachers', label:t('teachers')},
+    {id:'classes', label:t('classes')},
+    {id:'grades', label:t('grades')},
+    {id:'attendance', label:t('attendance')},
+    {id:'fees', label:t('fees')},
+    {id:'announcements', label:t('announcements')},
+    {id:'users', label:t('users')},
+    {id:'settings', label:t('settings')}
+  ],
+  teacher:()=>[
+    {id:'t-dashboard', label:'🏠 '+t('dashboard')},
+    {id:'t-students', label:t('myStudents')},
+    {id:'t-grades', label:t('myGrades')},
+    {id:'t-attendance', label:t('myAttendance')}
+  ],
+  student:()=>[
+    {id:'s-dashboard', label:'🏠 '+t('dashboard')},
+    {id:'s-grades', label:t('sMyGrades')},
+    {id:'s-attendance', label:t('sMyAttendance')},
+    {id:'s-fees', label:t('sMyFees')}
+  ],
+  parent:()=>[
+    {id:'p-dashboard', label:'🏠 '+t('dashboard')},
+    {id:'p-grades', label:t('pMyGrades')},
+    {id:'p-attendance', label:t('pMyAttendance')},
+    {id:'p-fees', label:t('pMyFees')}
+  ]
+};
+function buildSidebar(){
+  const items = NAV_CONFIG[CURRENT_USER.role]();
+  document.getElementById('sidebar').innerHTML = items.map(it=>
+    `<div class="nav-item" data-nav="${it.id}" onclick="navigate('${it.id}')">${it.label}</div>`
+  ).join('');
+}
+function navigate(pageId){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.nav===pageId));
+  renderPage(pageId);
+}
+
+/* ==================================================
+   HELPERS
+================================================== */
+function studentName(id){ const s = DB.students.find(x=>x.id===id); return s? s.name : '—'; }
+function className(id){ const c = DB.classes.find(x=>x.id===id); return c? c.name : '—'; }
+function teacherName(id){ const t = DB.teachers.find(x=>x.id===id); return t? t.name : '—'; }
+function parentName(id){ const p = DB.parents.find(x=>x.id===id); return p? p.name : '—'; }
+function studentsOfParent(parentId){ return DB.students.filter(s=>s.parentId===parentId); }
+function studentsOfTeacher(teacherId){
+  const classIds = DB.classes.filter(c=>c.teacherId===teacherId).map(c=>c.id);
+  return DB.students.filter(s=> classIds.includes(s.classId));
+}
+
+/* ==================================================
+   RENDER: MAIN ROUTER
+================================================== */
+function renderPage(pageId){
+  const main = document.getElementById('mainArea');
+  let html = '';
+  switch(pageId){
+    case 'dashboard': html = renderAdminDashboard(); break;
+    case 'students': html = renderStudents(); break;
+    case 'teachers': html = renderTeachers(); break;
+    case 'classes': html = renderClasses(); break;
+    case 'grades': html = renderGradesAdmin(); break;
+    case 'attendance': html = renderAttendanceAdmin(); break;
+    case 'fees': html = renderFees(); break;
+    case 'announcements': html = renderAnnouncements(); break;
+    case 'users': html = renderUsers(); break;
+    case 'settings': html = renderSettings(); break;
+
+    case 't-dashboard': html = renderTeacherDashboard(); break;
+    case 't-students': html = renderTeacherStudents(); break;
+    case 't-grades': html = renderTeacherGrades(); break;
+    case 't-attendance': html = renderTeacherAttendance(); break;
+
+    case 's-dashboard': html = renderStudentDashboard(); break;
+    case 's-grades': html = renderStudentGrades(); break;
+    case 's-attendance': html = renderStudentAttendance(); break;
+    case 's-fees': html = renderStudentFees(); break;
+
+    case 'p-dashboard': html = renderParentDashboard(); break;
+    case 'p-grades': html = renderParentGrades(); break;
+    case 'p-attendance': html = renderParentAttendance(); break;
+    case 'p-fees': html = renderParentFees(); break;
+  }
+  main.innerHTML = `<div class="page active">${html}</div>`;
+}
+
+/* ==================================================
+   ADMIN: DASHBOARD
+================================================== */
+function renderAdminDashboard(){
+  const totalFees = DB.fees.reduce((a,f)=>a+f.amount,0);
+  const paidFees = DB.fees.reduce((a,f)=>a+f.paid,0);
+  const feesPct = totalFees ? Math.round((paidFees/totalFees)*100) : 0;
+  const presentToday = DB.attendance.filter(a=>a.date===new Date().toISOString().slice(0,10) && a.status==='Xaadir').length;
+  const absentToday = DB.attendance.filter(a=>a.date===new Date().toISOString().slice(0,10) && a.status==='Maqan').length;
+  const avgScore = DB.grades.length ? Math.round(DB.grades.reduce((a,g)=>a+g.score,0)/DB.grades.length) : 0;
+  const maleCount = DB.students.filter(s=>s.gender==='Lab').length;
+  const femaleCount = DB.students.filter(s=>s.gender==='Dhedig').length;
+
+  const quickLinks = [
+    {nav:'students', icon:'🎒', label:'Ardayda', count:DB.students.length, color:'#2c5282'},
+    {nav:'teachers', icon:'👨‍🏫', label:'Macalimiinta', count:DB.teachers.length, color:'#38a169'},
+    {nav:'classes', icon:'🏫', label:'Fasallada', count:DB.classes.length, color:'#d69e2e'},
+    {nav:'grades', icon:'📊', label:'Dhigista', count:DB.grades.length, color:'#805ad5'},
+    {nav:'attendance', icon:'📅', label:'Xaadirinta', count:DB.attendance.length, color:'#dd6b20'},
+    {nav:'fees', icon:'💰', label:'Lacagaha', count:DB.fees.length, color:'#38a169'},
+    {nav:'announcements', icon:'📢', label:'Ogeysiisyada', count:DB.announcements.length, color:'#e53e3e'},
+    {nav:'users', icon:'🔑', label:'Users', count:DB.users.length, color:'#1e3a5f'}
+  ];
+
+  return `
+  <div class="page-title">Dashboard-ka Maamulka</div>
+  <div class="page-sub">Halkan waxaad ka arki kartaa dulmar guud oo dhammaan dugsiga ah</div>
+  ${greetingBanner()}
+
+  <div class="cards-row">
+    <div class="stat-card" style="border-top:4px solid #2c5282"><div class="num">${DB.students.length}</div><div class="lbl">🎒 Ardayda Guud</div></div>
+    <div class="stat-card" style="border-top:4px solid #38a169"><div class="num">${DB.teachers.length}</div><div class="lbl">👨‍🏫 Macalimiinta</div></div>
+    <div class="stat-card" style="border-top:4px solid #d69e2e"><div class="num">${DB.classes.length}</div><div class="lbl">🏫 Fasallada</div></div>
+    <div class="stat-card" style="border-top:4px solid #805ad5"><div class="num">${avgScore}%</div><div class="lbl">📊 Celceliska Dhibcaha</div></div>
+    <div class="stat-card" style="border-top:4px solid #dd6b20"><div class="num">${presentToday}/${absentToday}</div><div class="lbl">📅 Xaadir/Maqan Maanta</div></div>
+    <div class="stat-card" style="border-top:4px solid #e53e3e"><div class="num">$${paidFees}/$${totalFees}</div><div class="lbl">💰 Lacagaha la ururiyay</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>⚡ Gelitaan Degdeg ah — Dhammaan Features-ka</h3></div>
+    <div class="quick-grid">
+      ${quickLinks.map(q=>`
+        <div class="quick-card" onclick="navigate('${q.nav}')" style="--qc:${q.color}">
+          <div class="quick-icon">${q.icon}</div>
+          <div class="quick-num">${q.count}</div>
+          <div class="quick-lbl">${q.label}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="cards-row" style="grid-template-columns:1.3fr 1fr;">
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-head"><h3>💰 Xaaladda Lacagaha</h3></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${feesPct}%"></div></div>
+      <div class="flex-between" style="margin-top:8px;font-size:12.5px;color:var(--muted)">
+        <span>La ururiyay: $${paidFees}</span><span>${feesPct}%</span><span>Guud: $${totalFees}</span>
+      </div>
+      <div style="margin-top:18px">
+        ${['La bixiyay','Qeyb ahaan','Sugaya'].map(st=>{
+          const c = DB.fees.filter(f=>f.status===st).length;
+          const clr = st==='La bixiyay'?'green':st==='Qeyb ahaan'?'yellow':'red';
+          return `<div class="flex-between" style="padding:6px 0"><span class="tag ${clr}">${st}</span><b>${c} arday</b></div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-head"><h3>👥 Jinsiga Ardayda</h3></div>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center;padding:10px 0">
+        <div style="text-align:center">
+          <div style="font-size:30px;font-weight:800;color:#2c5282">${maleCount}</div>
+          <div style="font-size:12px;color:var(--muted)">Lab</div>
+        </div>
+        <div style="width:1px;height:40px;background:var(--border)"></div>
+        <div style="text-align:center">
+          <div style="font-size:30px;font-weight:800;color:#d69e2e">${femaleCount}</div>
+          <div style="font-size:12px;color:var(--muted)">Dhedig</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>📢 Ogeysiisyada ugu dambeeyay</h3></div>
+    ${DB.announcements.slice(-3).reverse().map(a=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <b>${a.title}</b><div style="color:var(--muted);font-size:13px">${a.body}</div>
+        <div style="color:var(--muted);font-size:11.5px;margin-top:3px">${a.date} · ${a.author}</div>
+      </div>`).join('') || '<div class="empty-state">Ogeysiis lama helin</div>'}
+  </div>`;
+}
+
+/* ==================================================
+   ADMIN: STUDENTS CRUD
+================================================== */
+function renderStudents(){
+  return `
+  <div class="page-title">Maareynta Ardayda</div>
+  <div class="page-sub">Isku dar, wax ka beddel ama tirtir ardayda</div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Liiska Ardayda (${DB.students.length})</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn small accent" onclick="openBulkStudentForm()">📋 Ku dar Liis (Bulk)</button>
+        <button class="btn small" onclick="openStudentForm()">+ Ku dar Arday</button>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <input class="search-input" style="width:100%" id="studentSearchBox" placeholder="🔍 Raadi magaca ardayga..." oninput="filterStudentTable()">
+    </div>
+    <table><thead><tr><th>Magaca</th><th>Fasalka</th><th>Jinsiga</th><th>Taleefan</th><th>Waalidka</th><th>Ficillo</th></tr></thead>
+    <tbody id="studentTableBody">
+    ${DB.students.map(s=>`
+      <tr>
+        <td>${s.name}</td><td>${className(s.classId)}</td><td>${s.gender}</td>
+        <td>${s.phone}</td><td>${parentName(s.parentId)}</td>
+        <td>
+          <button class="icon-btn" onclick="openStudentForm('${s.id}')">✏️</button>
+          <button class="icon-btn" onclick="deleteStudent('${s.id}')">🗑️</button>
+        </td>
+      </tr>`).join('') || `<tr><td colspan="6" class="empty-state">Arday lama diiwaan gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openStudentForm(id){
+  const s = id ? DB.students.find(x=>x.id===id) : null;
+  openModal(`
+    <h3>${s? 'Wax ka beddel Arday':'Ku dar Arday Cusub'}</h3>
+    <div class="field"><label>Magaca Ardayga</label><input id="f_name" value="${s?s.name:''}"></div>
+    <div class="grid2">
+      <div class="field"><label>Fasalka</label>
+        <select id="f_class">${DB.classes.map(c=>`<option value="${c.id}" ${s&&s.classId===c.id?'selected':''}>${c.name}</option>`).join('')}</select>
+      </div>
+      <div class="field"><label>Jinsiga</label>
+        <select id="f_gender">
+          <option ${s&&s.gender==='Lab'?'selected':''}>Lab</option>
+          <option ${s&&s.gender==='Dhedig'?'selected':''}>Dhedig</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Taleefanka</label><input id="f_phone" value="${s?s.phone:''}"></div>
+      <div class="field"><label>Waalidka</label>
+        <select id="f_parent">${DB.parents.map(p=>`<option value="${p.id}" ${s&&s.parentId===p.id?'selected':''}>${p.name}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button class="btn" onclick="saveStudent('${id||''}')">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>
+  `);
+}
+function saveStudent(id){
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ showToast('Fadlan geli magaca'); return; }
+  const data = {
+    name, classId: document.getElementById('f_class').value,
+    gender: document.getElementById('f_gender').value,
+    phone: document.getElementById('f_phone').value,
+    parentId: document.getElementById('f_parent').value
+  };
+  if(id){
+    Object.assign(DB.students.find(x=>x.id===id), data);
+  } else {
+    DB.students.push({id: uid('s'), ...data});
+  }
+  saveDB(); closeModal(); renderPage('students'); showToast('La kaydiyay ✅');
+}
+function deleteStudent(id){
+  if(!confirm('Ma hubtaa inaad tirtirto ardaygan?')) return;
+  DB.students = DB.students.filter(x=>x.id!==id);
+  saveDB(); renderPage('students'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   BULK ADD STUDENTS — dhammaan magacyada hal mar
+================================================== */
+function openBulkStudentForm(){
+  openModal(`
+    <h3>📋 Ku dar Liis Ardayda (Bulk)</h3>
+    <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">
+      Ku qor magac kasta xariiq gooni ah (hal magac hal line). Waxaad ku dari kartaa
+      ilaa boqolaal magac hal mar.
+    </p>
+    <div class="field">
+      <label>Fasalka ay wada galayaan</label>
+      <select id="bulk_class">${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+    </div>
+    <div class="field">
+      <label>Jinsiga guud (waad bedeli kartaa gudaha shaxda kadib)</label>
+      <select id="bulk_gender"><option>Lab</option><option>Dhedig</option></select>
+    </div>
+    <div class="field">
+      <label>Magacyada Ardayda (hal magac hal xariiq)</label>
+      <textarea id="bulk_names" rows="10" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"
+        placeholder="Xamse Cali Warsame&#10;Hodan Aadan Yusuf&#10;Yusuf Maxamed Nuur&#10;..."></textarea>
+    </div>
+    <div id="bulkPreviewCount" style="font-size:12.5px;color:var(--muted);margin-bottom:10px"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn accent" onclick="saveBulkStudents()">Kaydi Dhammaan</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>
+  `);
+  document.getElementById('bulk_names').addEventListener('input', ()=>{
+    const lines = document.getElementById('bulk_names').value.split('\n').map(l=>l.trim()).filter(Boolean);
+    document.getElementById('bulkPreviewCount').textContent = `${lines.length} magac ayaa la aqriyay`;
+  });
+}
+function saveBulkStudents(){
+  const classId = document.getElementById('bulk_class').value;
+  const gender = document.getElementById('bulk_gender').value;
+  const raw = document.getElementById('bulk_names').value;
+  const names = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(names.length === 0){ showToast('Fadlan geli ugu yaraan hal magac'); return; }
+  names.forEach(name=>{
+    DB.students.push({
+      id: uid('s'), name, classId, gender, phone:'', parentId: DB.parents[0]?.id || ''
+    });
+  });
+  saveDB(); closeModal(); renderPage('students');
+  showToast(`✅ ${names.length} arday ayaa lagu daray database-ka`);
+}
+function filterStudentTable(){
+  const q = document.getElementById('studentSearchBox').value.trim().toLowerCase();
+  const filtered = q ? DB.students.filter(s=> s.name.toLowerCase().includes(q)) : DB.students;
+  document.getElementById('studentTableBody').innerHTML = filtered.map(s=>`
+      <tr>
+        <td>${s.name}</td><td>${className(s.classId)}</td><td>${s.gender}</td>
+        <td>${s.phone}</td><td>${parentName(s.parentId)}</td>
+        <td>
+          <button class="icon-btn" onclick="openStudentForm('${s.id}')">✏️</button>
+          <button class="icon-btn" onclick="deleteStudent('${s.id}')">🗑️</button>
+        </td>
+      </tr>`).join('') || `<tr><td colspan="6" class="empty-state">Wax lama helin</td></tr>`;
+}
+
+/* ==================================================
+   ADMIN: TEACHERS CRUD
+================================================== */
+function renderTeachers(){
+  return `
+  <div class="page-title">Maareynta Macalimiinta</div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Liiska Macalimiinta (${DB.teachers.length})</h3>
+      <button class="btn small" onclick="openTeacherForm()">+ Ku dar Macalin</button>
+    </div>
+    <table><thead><tr><th>Magaca</th><th>Maadada</th><th>Taleefan</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.teachers.map(t=>`
+      <tr><td>${t.name}</td><td>${t.subject}</td><td>${t.phone}</td>
+      <td><button class="icon-btn" onclick="openTeacherForm('${t.id}')">✏️</button>
+      <button class="icon-btn" onclick="deleteTeacher('${t.id}')">🗑️</button></td></tr>
+    `).join('') || `<tr><td colspan="4" class="empty-state">Macalin lama diiwaan gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openTeacherForm(id){
+  const t = id ? DB.teachers.find(x=>x.id===id) : null;
+  openModal(`
+    <h3>${t?'Wax ka beddel Macalin':'Ku dar Macalin'}</h3>
+    <div class="field"><label>Magaca</label><input id="f_tname" value="${t?t.name:''}"></div>
+    <div class="field"><label>Maadada</label><input id="f_tsubject" value="${t?t.subject:''}"></div>
+    <div class="field"><label>Taleefanka</label><input id="f_tphone" value="${t?t.phone:''}"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveTeacher('${id||''}')">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveTeacher(id){
+  const name = document.getElementById('f_tname').value.trim();
+  if(!name){ showToast('Fadlan geli magaca'); return; }
+  const data = {name, subject:document.getElementById('f_tsubject').value, phone:document.getElementById('f_tphone').value};
+  if(id) Object.assign(DB.teachers.find(x=>x.id===id), data);
+  else DB.teachers.push({id:uid('t'), ...data});
+  saveDB(); closeModal(); renderPage('teachers'); showToast('La kaydiyay ✅');
+}
+function deleteTeacher(id){
+  if(!confirm('Ma hubtaa?')) return;
+  DB.teachers = DB.teachers.filter(x=>x.id!==id);
+  saveDB(); renderPage('teachers'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: CLASSES CRUD
+================================================== */
+function renderClasses(){
+  return `
+  <div class="page-title">Maareynta Fasallada</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Liiska Fasallada (${DB.classes.length})</h3>
+      <button class="btn small" onclick="openClassForm()">+ Ku dar Fasal</button></div>
+    <table><thead><tr><th>Fasalka</th><th>Macalinka Mas'uulka</th><th>Tirada Ardayda</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.classes.map(c=>`
+      <tr><td>${c.name}</td><td>${teacherName(c.teacherId)}</td>
+      <td>${DB.students.filter(s=>s.classId===c.id).length}</td>
+      <td><button class="icon-btn" onclick="openClassForm('${c.id}')">✏️</button>
+      <button class="icon-btn" onclick="deleteClass('${c.id}')">🗑️</button></td></tr>
+    `).join('') || `<tr><td colspan="4" class="empty-state">Fasal lama diiwaan gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openClassForm(id){
+  const c = id ? DB.classes.find(x=>x.id===id) : null;
+  openModal(`
+    <h3>${c?'Wax ka beddel Fasal':'Ku dar Fasal'}</h3>
+    <div class="field"><label>Magaca Fasalka</label><input id="f_cname" value="${c?c.name:''}"></div>
+    <div class="field"><label>Macalinka</label>
+      <select id="f_cteacher">${DB.teachers.map(t=>`<option value="${t.id}" ${c&&c.teacherId===t.id?'selected':''}>${t.name}</option>`).join('')}</select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveClass('${id||''}')">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveClass(id){
+  const name = document.getElementById('f_cname').value.trim();
+  if(!name){ showToast('Fadlan geli magaca fasalka'); return; }
+  const data = {name, teacherId: document.getElementById('f_cteacher').value};
+  if(id) Object.assign(DB.classes.find(x=>x.id===id), data);
+  else DB.classes.push({id:uid('c'), ...data});
+  saveDB(); closeModal(); renderPage('classes'); showToast('La kaydiyay ✅');
+}
+function deleteClass(id){
+  if(!confirm('Ma hubtaa?')) return;
+  DB.classes = DB.classes.filter(x=>x.id!==id);
+  saveDB(); renderPage('classes'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: GRADES (view all)
+================================================== */
+function renderGradesAdmin(){
+  return `
+  <div class="page-title">Dhigista Ardayda (Guud)</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Dhammaan Dhigista</h3>
+      <button class="btn small" onclick="openGradeForm()">+ Ku dar Dhigis</button></div>
+    <table><thead><tr><th>Arday</th><th>Maadada</th><th>Semester</th><th>Dhibcaha</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.grades.map(g=>`
+      <tr><td>${studentName(g.studentId)}</td><td>${g.subject}</td><td>${g.term}</td>
+      <td><span class="tag ${g.score>=50?'green':'red'}">${g.score}%</span></td>
+      <td><button class="icon-btn" onclick="deleteGrade('${g.id}')">🗑️</button></td></tr>
+    `).join('') || `<tr><td colspan="5" class="empty-state">Dhigis lama gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openGradeForm(presetStudentId){
+  openModal(`
+    <h3>Ku dar Dhigis</h3>
+    <div class="field"><label>Arday</label>
+      <select id="f_gstudent">${DB.students.map(s=>`<option value="${s.id}" ${presetStudentId===s.id?'selected':''}>${s.name}</option>`).join('')}</select>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Maadada</label>
+        <select id="f_gsubject">${DB.subjects.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
+      <div class="field"><label>Semester</label><input id="f_gterm" value="Semester 1"></div>
+    </div>
+    <div class="field"><label>Dhibcaha (%)</label><input id="f_gscore" type="number" min="0" max="100" value="0"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveGrade()">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveGrade(){
+  DB.grades.push({
+    id:uid('g'), studentId:document.getElementById('f_gstudent').value,
+    subject:document.getElementById('f_gsubject').value,
+    term:document.getElementById('f_gterm').value,
+    score:Number(document.getElementById('f_gscore').value)
+  });
+  saveDB(); closeModal();
+  renderPage(CURRENT_USER.role==='teacher' ? 't-grades':'grades');
+  showToast('Dhigista waa la gelay ✅');
+}
+function deleteGrade(id){
+  DB.grades = DB.grades.filter(x=>x.id!==id);
+  saveDB(); renderPage(CURRENT_USER.role==='teacher'?'t-grades':'grades'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: ATTENDANCE (view all)
+================================================== */
+function renderAttendanceAdmin(){
+  return `
+  <div class="page-title">Xaadirinta Ardayda (Guud)</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Diiwaanka Xaadirinta</h3>
+      <button class="btn small" onclick="openAttendanceForm()">+ Geli Xaadirin</button></div>
+    <table><thead><tr><th>Arday</th><th>Taariikh</th><th>Xaalada</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.attendance.slice().reverse().map(a=>`
+      <tr><td>${studentName(a.studentId)}</td><td>${a.date}</td>
+      <td><span class="tag ${a.status==='Xaadir'?'green':'red'}">${a.status}</span></td>
+      <td><button class="icon-btn" onclick="deleteAttendance('${a.id}')">🗑️</button></td></tr>
+    `).join('') || `<tr><td colspan="4" class="empty-state">Xaadirin lama gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openAttendanceForm(presetStudentId){
+  openModal(`
+    <h3>Geli Xaadirinta</h3>
+    <div class="field"><label>Arday</label>
+      <select id="f_astudent">${DB.students.map(s=>`<option value="${s.id}" ${presetStudentId===s.id?'selected':''}>${s.name}</option>`).join('')}</select>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Taariikhda</label><input type="date" id="f_adate" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="field"><label>Xaalada</label>
+        <select id="f_astatus"><option>Xaadir</option><option>Maqan</option><option>Daahay</option></select></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveAttendance()">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveAttendance(){
+  DB.attendance.push({
+    id:uid('a'), studentId:document.getElementById('f_astudent').value,
+    date:document.getElementById('f_adate').value, status:document.getElementById('f_astatus').value
+  });
+  saveDB(); closeModal();
+  renderPage(CURRENT_USER.role==='teacher'?'t-attendance':'attendance');
+  showToast('Xaadirinta waa la gelay ✅');
+}
+function deleteAttendance(id){
+  DB.attendance = DB.attendance.filter(x=>x.id!==id);
+  saveDB(); renderPage(CURRENT_USER.role==='teacher'?'t-attendance':'attendance'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: FEES
+================================================== */
+function renderFees(){
+  return `
+  <div class="page-title">Maareynta Lacagaha (Fees)</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Diiwaanka Lacagaha</h3>
+      <button class="btn small" onclick="openFeeForm()">+ Ku dar Lacag</button></div>
+    <table><thead><tr><th>Arday</th><th>Qiimaha</th><th>La bixiyay</th><th>Xaalada</th><th>Taariikh</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.fees.map(f=>`
+      <tr><td>${studentName(f.studentId)}</td><td>$${f.amount}</td><td>$${f.paid}</td>
+      <td><span class="tag ${f.status==='La bixiyay'?'green':f.status==='Qeyb ahaan'?'yellow':'red'}">${f.status}</span></td>
+      <td>${f.date}</td>
+      <td><button class="icon-btn" onclick="deleteFee('${f.id}')">🗑️</button></td></tr>
+    `).join('') || `<tr><td colspan="6" class="empty-state">Lacag lama gelin</td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function openFeeForm(presetStudentId){
+  openModal(`
+    <h3>Ku dar Diiwaanka Lacagta</h3>
+    <div class="field"><label>Arday</label>
+      <select id="f_fstudent">${DB.students.map(s=>`<option value="${s.id}" ${presetStudentId===s.id?'selected':''}>${s.name}</option>`).join('')}</select>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Qiimaha Guud ($)</label><input type="number" id="f_famount" value="50"></div>
+      <div class="field"><label>La Bixiyay ($)</label><input type="number" id="f_fpaid" value="0"></div>
+    </div>
+    <div class="field"><label>Taariikh</label><input type="date" id="f_fdate" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveFee()">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveFee(){
+  const amount = Number(document.getElementById('f_famount').value);
+  const paid = Number(document.getElementById('f_fpaid').value);
+  let status = 'Sugaya';
+  if(paid>=amount && amount>0) status='La bixiyay';
+  else if(paid>0) status='Qeyb ahaan';
+  DB.fees.push({
+    id:uid('f'), studentId:document.getElementById('f_fstudent').value,
+    amount, paid, date:document.getElementById('f_fdate').value, status
+  });
+  saveDB(); closeModal(); renderPage('fees'); showToast('Lacagta waa la gelisay ✅');
+}
+function deleteFee(id){
+  DB.fees = DB.fees.filter(x=>x.id!==id);
+  saveDB(); renderPage('fees'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: ANNOUNCEMENTS
+================================================== */
+function renderAnnouncements(){
+  return `
+  <div class="page-title">Ogeysiisyada</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Ku dar Ogeysiis Cusub</h3></div>
+    <div class="field"><label>Cinwaanka</label><input id="f_antitle" placeholder="Cinwaanka ogeysiiska"></div>
+    <div class="field"><label>Faahfaahin</label><input id="f_anbody" placeholder="Qoraalka ogeysiiska"></div>
+    <button class="btn small" onclick="saveAnnouncement()">Sii Daa Ogeysiiska</button>
+  </div>
+  <div class="panel">
+    <h3 style="margin-bottom:14px">Ogeysiisyada Hore</h3>
+    ${DB.announcements.slice().reverse().map(a=>`
+      <div style="padding:12px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:start">
+        <div><b>${a.title}</b><div style="color:var(--muted);font-size:13px">${a.body}</div>
+        <div style="color:var(--muted);font-size:11.5px;margin-top:3px">${a.date} · ${a.author}</div></div>
+        <button class="icon-btn" onclick="deleteAnnouncement('${a.id}')">🗑️</button>
+      </div>`).join('') || '<div class="empty-state">Ogeysiis lama helin</div>'}
+  </div>`;
+}
+function saveAnnouncement(){
+  const title = document.getElementById('f_antitle').value.trim();
+  const body = document.getElementById('f_anbody').value.trim();
+  if(!title){ showToast('Fadlan geli cinwaanka'); return; }
+  DB.announcements.push({id:uid('an'), title, body, date:new Date().toISOString().slice(0,10), author:CURRENT_USER.name});
+  saveDB(); renderPage('announcements'); showToast('Ogeysiiska waa la diray ✅');
+}
+function deleteAnnouncement(id){
+  DB.announcements = DB.announcements.filter(x=>x.id!==id);
+  saveDB(); renderPage('announcements'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: USERS & PASSWORDS
+================================================== */
+function renderUsers(){
+  return `
+  <div class="page-title">Users & Passwords</div>
+  <div class="page-sub">Halkan ka maamul akoonada login-ka ee dhammaan isticmaalayaasha</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Liiska Users (${DB.users.length})</h3>
+      <button class="btn small" onclick="openUserForm()">+ Ku dar User</button></div>
+    <table><thead><tr><th>Magaca</th><th>Username</th><th>Password</th><th>Role</th><th>Ficillo</th></tr></thead>
+    <tbody>
+    ${DB.users.map(u=>`
+      <tr><td>${u.name}</td><td>${u.username}</td><td>••••••</td>
+      <td><span class="tag yellow">${u.role}</span></td>
+      <td><button class="icon-btn" onclick="openUserForm('${u.id}')">✏️</button>
+      ${u.username!=='admin'?`<button class="icon-btn" onclick="deleteUser('${u.id}')">🗑️</button>`:''}</td></tr>
+    `).join('')}
+    </tbody></table>
+  </div>`;
+}
+function openUserForm(id){
+  const u = id? DB.users.find(x=>x.id===id) : null;
+  openModal(`
+    <h3>${u?'Wax ka beddel User':'Ku dar User Cusub'}</h3>
+    <div class="field"><label>Magaca Buuxa</label><input id="f_uname" value="${u?u.name:''}"></div>
+    <div class="grid2">
+      <div class="field"><label>Username</label><input id="f_uuser" value="${u?u.username:''}"></div>
+      <div class="field"><label>Password</label><input id="f_upass" value="${u?u.password:''}"></div>
+    </div>
+    <div class="field"><label>Role</label>
+      <select id="f_urole" onchange="toggleLinkField()">
+        <option value="admin" ${u&&u.role==='admin'?'selected':''}>Admin</option>
+        <option value="teacher" ${u&&u.role==='teacher'?'selected':''}>Macalin</option>
+        <option value="student" ${u&&u.role==='student'?'selected':''}>Arday</option>
+        <option value="parent" ${u&&u.role==='parent'?'selected':''}>Waalid</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveUser('${id||''}')">Kaydi</button>
+      <button class="btn outline" onclick="closeModal()">Jooji</button>
+    </div>`);
+}
+function saveUser(id){
+  const name = document.getElementById('f_uname').value.trim();
+  const username = document.getElementById('f_uuser').value.trim();
+  const password = document.getElementById('f_upass').value;
+  const role = document.getElementById('f_urole').value;
+  if(!name || !username || !password){ showToast('Fadlan buuxi dhammaan meelaha'); return; }
+  if(id){
+    Object.assign(DB.users.find(x=>x.id===id), {name, username, password, role});
+  } else {
+    DB.users.push({id:uid('u'), name, username, password, role, linkedId:null});
+  }
+  saveDB(); closeModal(); renderPage('users'); showToast('User-ka waa la kaydiyay ✅');
+}
+function deleteUser(id){
+  if(!confirm('Ma hubtaa?')) return;
+  DB.users = DB.users.filter(x=>x.id!==id);
+  saveDB(); renderPage('users'); showToast('La tirtiray');
+}
+
+/* ==================================================
+   ADMIN: SYSTEM SETTINGS
+================================================== */
+function renderSettings(){
+  if(CURRENT_USER.role !== 'admin'){
+    return `<div class="page-title">⛔ Ma lihid Ogolaansho</div>
+    <div class="panel"><div class="empty-state">Bogga Settings waxaa isticmaali kara kaliya Admin-ka nidaamka.</div></div>`;
+  }
+  const s = DB.settings || {};
+  return `
+  <div class="page-title">⚙️ Settings — Maamulka Nidaamka</div>
+  <div class="page-sub">Halkan ka maamul faahfaahinta dugsiga, backup-ka xogta, iyo dib-u-dejinta nidaamka</div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>🏫 Faahfaahinta Dugsiga</h3></div>
+    <div class="field">
+      <label>Logo-ga Dugsiga</label>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+        <div id="logoPreview" style="width:56px;height:56px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden">
+          ${s.schoolLogoImage ? `<img src="${s.schoolLogoImage}" style="width:100%;height:100%;object-fit:cover">` : (s.schoolLogo||'🎓')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn small outline" onclick="document.getElementById('logoFileInput').click()">📷 Soo Geli Sawir Logo</button>
+          <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="previewLogoUpload(event)">
+          ${s.schoolLogoImage ? `<button class="btn small danger" onclick="removeLogoImage()">🗑️ Ka saar Sawirka (isticmaal Emoji)</button>` : ''}
+        </div>
+      </div>
+      <label style="font-size:11.5px;color:var(--muted)">Ama isticmaal Emoji halkii sawir (haddii aan sawir la dooran)</label>
+      <input id="st_logo" value="${s.schoolLogo||''}" maxlength="4" placeholder="🎓" style="max-width:120px">
+    </div>
+    <div class="field"><label>Magaca Dugsiga</label><input id="st_name" value="${s.schoolName||''}"></div>
+    <div class="grid2">
+      <div class="field"><label>Cinwaanka</label><input id="st_address" value="${s.address||''}"></div>
+      <div class="field"><label>Taleefanka</label><input id="st_phone" value="${s.phone||''}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Email</label><input id="st_email" value="${s.email||''}"></div>
+      <div class="field"><label>Qiimaha Lacagta (Currency Symbol)</label><input id="st_currency" value="${s.currency||'$'}" maxlength="3"></div>
+    </div>
+    <div class="field"><label>Qiimaha Lacagta Fasalka (Default Fee Amount)</label><input id="st_feeAmount" type="number" value="${s.feeAmount||0}"></div>
+    <button class="btn" onclick="saveSettings()">💾 Kaydi Settings-ka</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>💾 Backup & Restore Xogta</h3></div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Waxaad soo dejisan kartaa (export) nuqul kaydinta xogta oo dhan, ama waxaad soo geli kartaa (import) fayl backup ah oo hore loo kaydiyay.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn accent" onclick="exportData()">⬇️ Export Backup (JSON)</button>
+      <button class="btn outline" onclick="document.getElementById('importFileInput').click()">⬆️ Import Backup</button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>🔑 Beddel Login-kayga (Username & Password)</h3></div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Halkan waxaad ka beddeli kartaa username-ka iyo password-ka aad ku gasho nidaamka. Waa in aad gelisaa password-kaaga hadda jira si aad u xaqiijiso.</p>
+    <div class="field"><label>Password-ka Hadda Jira (Current)</label><input type="password" id="mp_current" placeholder="Geli password-kaaga hadda jira"></div>
+    <div class="grid2">
+      <div class="field"><label>Username Cusub</label><input id="mp_username" value="${CURRENT_USER.username}"></div>
+      <div class="field"><label>Password Cusub</label><input type="password" id="mp_new" placeholder="Ka tag banaan haddii aadan beddeli password-ka"></div>
+    </div>
+    <div class="field"><label>Xaqiiji Password-ka Cusub</label><input type="password" id="mp_confirm" placeholder="Ku celi password-ka cusub"></div>
+    <button class="btn" onclick="changeMyLogin()">🔑 Beddel Login-kayga</button>
+  </div>
+
+  <div class="panel" style="border:1.5px solid var(--danger)">
+    <div class="panel-head"><h3 style="color:var(--danger)">⚠️ Aagga Khatarta (Danger Zone)</h3></div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Tallaabooyinkan si toos ah ayay u beddelaan ama u tirtiraan xogta nidaamka oo dhan. Fadlan ka digtoonow.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn danger" onclick="resetSettingsOnly()">↺ Dib-u-dejinta Settings-ka Kaliya</button>
+      <button class="btn danger" onclick="resetSystem()">🗑️ Tirtir Xogta Oo Dhan & Bilow Dib</button>
+    </div>
+  </div>`;
+}
+let PENDING_LOGO_IMAGE = undefined; // undefined = ma beddelin, null = la saaray, string = sawir cusub
+
+function previewLogoUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  if(file.size > 1024*1024){
+    showToast('❌ Sawirka waa inuu ka yaraado 1MB');
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    PENDING_LOGO_IMAGE = e.target.result;
+    document.getElementById('logoPreview').innerHTML = `<img src="${PENDING_LOGO_IMAGE}" style="width:100%;height:100%;object-fit:cover">`;
+    showToast('Sawirka waa la doortay — dhagsii "Kaydi Settings-ka" si aad u xaqiijiso');
+  };
+  reader.readAsDataURL(file);
+}
+function removeLogoImage(){
+  PENDING_LOGO_IMAGE = null;
+  document.getElementById('logoPreview').innerHTML = document.getElementById('st_logo').value || '🎓';
+  showToast('Sawirka waa la saaray — dhagsii "Kaydi Settings-ka" si aad u xaqiijiso');
+}
+function saveSettings(){
+  const newSettings = {
+    schoolName: document.getElementById('st_name').value.trim() || 'Al-Furqaan School',
+    schoolLogo: document.getElementById('st_logo').value.trim() || '🎓',
+    address: document.getElementById('st_address').value.trim(),
+    phone: document.getElementById('st_phone').value.trim(),
+    email: document.getElementById('st_email').value.trim(),
+    currency: document.getElementById('st_currency').value.trim() || '$',
+    feeAmount: Number(document.getElementById('st_feeAmount').value) || 0
+  };
+  if(PENDING_LOGO_IMAGE === null){
+    // sawirka waa la saaray
+  } else if(PENDING_LOGO_IMAGE){
+    newSettings.schoolLogoImage = PENDING_LOGO_IMAGE;
+  } else if(DB.settings && DB.settings.schoolLogoImage){
+    newSettings.schoolLogoImage = DB.settings.schoolLogoImage;
+  }
+  DB.settings = newSettings;
+  PENDING_LOGO_IMAGE = undefined;
+  saveDB();
+  applyBranding();
+  showToast('Settings-ka waa la kaydiyay ✅');
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `${(DB.settings?.schoolName||'school').replace(/\s+/g,'_')}_backup_${dateStr}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Backup-ka waa la soo dejiyay ✅');
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  if(!confirm('Import-kan wuxuu ku beddelayaa xogta hadda jirta ee nidaamka. Ma hubtaa inaad sii wado?')){
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!imported.users || !Array.isArray(imported.users)){
+        showToast('❌ Faylka backup-ka sax ma aha');
+        return;
+      }
+      if(!imported.settings) imported.settings = seedData().settings;
+      DB = imported;
+      saveDB();
+      applyBranding();
+      buildSidebar();
+      navigate('settings');
+      showToast('Xogta waa la soo galiyay si guul leh ✅');
+    } catch(err){
+      showToast('❌ Faylka lama akhriyi karo');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+function changeMyLogin(){
+  const current = document.getElementById('mp_current').value;
+  const newUsername = document.getElementById('mp_username').value.trim();
+  const newPass = document.getElementById('mp_new').value;
+  const confirmPass = document.getElementById('mp_confirm').value;
+
+  if(current !== CURRENT_USER.password){
+    showToast('❌ Password-ka hadda jira waa khalad');
+    return;
+  }
+  if(!newUsername){
+    showToast('❌ Username-ka ma bannaanaan karo');
+    return;
+  }
+  const clash = DB.users.find(u => u.username === newUsername && u.id !== CURRENT_USER.id);
+  if(clash){
+    showToast('❌ Username-kan horeba waa la isticmaalayaa');
+    return;
+  }
+  if(newPass || confirmPass){
+    if(newPass.length < 4){
+      showToast('❌ Password-ka cusub waa inuu ka badan yahay 3 xaraf');
+      return;
+    }
+    if(newPass !== confirmPass){
+      showToast('❌ Password-yada cusub isma waafaqsana');
+      return;
+    }
+  }
+
+  const user = DB.users.find(u => u.id === CURRENT_USER.id);
+  user.username = newUsername;
+  if(newPass) user.password = newPass;
+  CURRENT_USER = user;
+  saveDB();
+
+  document.getElementById('mp_current').value = '';
+  document.getElementById('mp_new').value = '';
+  document.getElementById('mp_confirm').value = '';
+  showToast('✅ Login-kaaga waa la beddelay');
+}
+function resetSettingsOnly(){
+  if(!confirm('Ma hubtaa inaad dib-u-dejinayso settings-ka dugsiga asalka ah?')) return;
+  DB.settings = seedData().settings;
+  saveDB();
+  applyBranding();
+  renderPage('settings');
+  showToast('Settings-ka waa la dib-u-dejiyay');
+}
+function resetSystem(){
+  if(!confirm('DIGNIIN: Tan waxay tirtirtaa dhammaan xogta (ardayda, macalimiinta, users, iwm) oo waxay ku beddeshaa xogta bilowga ah. Ficilkan lama celin karo. Ma hubtaa?')) return;
+  if(!confirm('Xaqiijinta labaad: Run ahaantii ma rabtaa in xogta oo dhan la tirtiro?')) return;
+  DB = seedData();
+  saveDB();
+  applyBranding();
+  buildSidebar();
+  navigate('dashboard');
+  showToast('Nidaamka waa la dib-u-deji dhammaystiray');
+}
+
+/* ==================================================
+   TEACHER VIEWS
+================================================== */
+function myTeacherId(){ return CURRENT_USER.linkedId; }
+function renderTeacherDashboard(){
+  const myStudents = studentsOfTeacher(myTeacherId());
+  const myClasses = DB.classes.filter(c=>c.teacherId===myTeacherId());
+  return `
+  <div class="page-title">Dashboard-ka Macalinka</div>
+  ${greetingBanner()}
+  <div class="cards-row">
+    <div class="stat-card"><div class="num">${myClasses.length}</div><div class="lbl">Fasalladayda</div></div>
+    <div class="stat-card"><div class="num">${myStudents.length}</div><div class="lbl">Ardaydayda</div></div>
+  </div>
+  <div class="panel"><h3 style="margin-bottom:12px">Fasalladayda</h3>
+    <table><thead><tr><th>Fasalka</th><th>Tirada Ardayda</th></tr></thead>
+    <tbody>${myClasses.map(c=>`<tr><td>${c.name}</td><td>${DB.students.filter(s=>s.classId===c.id).length}</td></tr>`).join('') || '<tr><td colspan="2" class="empty-state">Fasal lama helin</td></tr>'}</tbody></table>
+  </div>`;
+}
+function renderTeacherStudents(){
+  const myStudents = studentsOfTeacher(myTeacherId());
+  return `
+  <div class="page-title">Ardaydayda</div>
+  <div class="panel"><table><thead><tr><th>Magaca</th><th>Fasalka</th><th>Jinsiga</th><th>Taleefan</th></tr></thead>
+  <tbody>${myStudents.map(s=>`<tr><td>${s.name}</td><td>${className(s.classId)}</td><td>${s.gender}</td><td>${s.phone}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">Arday lama helin</td></tr>'}</tbody></table></div>`;
+}
+function renderTeacherGrades(){
+  const myStudents = studentsOfTeacher(myTeacherId()).map(s=>s.id);
+  const myGrades = DB.grades.filter(g=>myStudents.includes(g.studentId));
+  return `
+  <div class="page-title">Geli Dhigista Ardayda</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Dhigista</h3><button class="btn small" onclick="openGradeForm()">+ Ku dar Dhigis</button></div>
+    <table><thead><tr><th>Arday</th><th>Maadada</th><th>Semester</th><th>Dhibcaha</th><th></th></tr></thead>
+    <tbody>${myGrades.map(g=>`<tr><td>${studentName(g.studentId)}</td><td>${g.subject}</td><td>${g.term}</td><td><span class="tag ${g.score>=50?'green':'red'}">${g.score}%</span></td><td><button class="icon-btn" onclick="deleteGrade('${g.id}')">🗑️</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty-state">Dhigis lama gelin</td></tr>'}</tbody></table>
+  </div>`;
+}
+function renderTeacherAttendance(){
+  const myStudents = studentsOfTeacher(myTeacherId()).map(s=>s.id);
+  const myAtt = DB.attendance.filter(a=>myStudents.includes(a.studentId));
+  return `
+  <div class="page-title">Geli Xaadirinta Ardayda</div>
+  <div class="panel">
+    <div class="panel-head"><h3>Xaadirinta</h3><button class="btn small" onclick="openAttendanceForm()">+ Geli Xaadirin</button></div>
+    <table><thead><tr><th>Arday</th><th>Taariikh</th><th>Xaalada</th><th></th></tr></thead>
+    <tbody>${myAtt.slice().reverse().map(a=>`<tr><td>${studentName(a.studentId)}</td><td>${a.date}</td><td><span class="tag ${a.status==='Xaadir'?'green':'red'}">${a.status}</span></td><td><button class="icon-btn" onclick="deleteAttendance('${a.id}')">🗑️</button></td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">Xaadirin lama gelin</td></tr>'}</tbody></table>
+  </div>`;
+}
+
+/* ==================================================
+   STUDENT VIEWS
+================================================== */
+function myStudentId(){ return CURRENT_USER.linkedId; }
+function renderStudentDashboard(){
+  const s = DB.students.find(x=>x.id===myStudentId());
+  const myGrades = DB.grades.filter(g=>g.studentId===myStudentId());
+  const avg = myGrades.length ? Math.round(myGrades.reduce((a,g)=>a+g.score,0)/myGrades.length) : 0;
+  return `
+  <div class="page-title">Dashboard-kayga</div>
+  <div class="page-sub">${className(s?.classId)}</div>
+  ${greetingBanner()}
+  <div class="cards-row">
+    <div class="stat-card"><div class="num">${avg}%</div><div class="lbl">Celceliska Dhibcaha</div></div>
+    <div class="stat-card"><div class="num">${DB.attendance.filter(a=>a.studentId===myStudentId()&&a.status==='Xaadir').length}</div><div class="lbl">Maalmaha Xaadirka</div></div>
+  </div>
+  <div class="panel"><h3 style="margin-bottom:12px">📢 Ogeysiisyada</h3>
+  ${DB.announcements.slice(-3).reverse().map(a=>`<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>${a.title}</b><div style="color:var(--muted);font-size:13px">${a.body}</div></div>`).join('') || '<div class="empty-state">Ma jiro</div>'}
+  </div>`;
+}
+function renderStudentGrades(){
+  const myGrades = DB.grades.filter(g=>g.studentId===myStudentId());
+  return `<div class="page-title">Dhigistayda</div>
+  <div class="panel"><table><thead><tr><th>Maadada</th><th>Semester</th><th>Dhibcaha</th></tr></thead>
+  <tbody>${myGrades.map(g=>`<tr><td>${g.subject}</td><td>${g.term}</td><td><span class="tag ${g.score>=50?'green':'red'}">${g.score}%</span></td></tr>`).join('') || '<tr><td colspan="3" class="empty-state">Dhigis lama gelin</td></tr>'}</tbody></table></div>`;
+}
+function renderStudentAttendance(){
+  const myAtt = DB.attendance.filter(a=>a.studentId===myStudentId());
+  return `<div class="page-title">Xaadirintayda</div>
+  <div class="panel"><table><thead><tr><th>Taariikh</th><th>Xaalada</th></tr></thead>
+  <tbody>${myAtt.slice().reverse().map(a=>`<tr><td>${a.date}</td><td><span class="tag ${a.status==='Xaadir'?'green':'red'}">${a.status}</span></td></tr>`).join('') || '<tr><td colspan="2" class="empty-state">Lama gelin</td></tr>'}</tbody></table></div>`;
+}
+function renderStudentFees(){
+  const myFees = DB.fees.filter(f=>f.studentId===myStudentId());
+  return `<div class="page-title">Lacagtayda</div>
+  <div class="panel"><table><thead><tr><th>Qiimaha</th><th>La bixiyay</th><th>Xaalada</th><th>Taariikh</th></tr></thead>
+  <tbody>${myFees.map(f=>`<tr><td>$${f.amount}</td><td>$${f.paid}</td><td><span class="tag ${f.status==='La bixiyay'?'green':f.status==='Qeyb ahaan'?'yellow':'red'}">${f.status}</span></td><td>${f.date}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">Lama gelin</td></tr>'}</tbody></table></div>`;
+}
+
+/* ==================================================
+   PARENT VIEWS
+================================================== */
+function myParentId(){ return CURRENT_USER.linkedId; }
+function renderParentDashboard(){
+  const kids = studentsOfParent(myParentId());
+  return `<div class="page-title">Dashboard-ka Waalidka</div>
+  ${greetingBanner()}
+  <div class="panel"><h3 style="margin-bottom:12px">Ilmahaaga</h3>
+  <table><thead><tr><th>Magaca</th><th>Fasalka</th></tr></thead>
+  <tbody>${kids.map(k=>`<tr><td>${k.name}</td><td>${className(k.classId)}</td></tr>`).join('') || '<tr><td colspan="2" class="empty-state">Ilmo lama helin</td></tr>'}</tbody></table></div>`;
+}
+function renderParentGrades(){
+  const kids = studentsOfParent(myParentId()).map(k=>k.id);
+  const grades = DB.grades.filter(g=>kids.includes(g.studentId));
+  return `<div class="page-title">Dhigista Ilmaha</div>
+  <div class="panel"><table><thead><tr><th>Ilmo</th><th>Maadada</th><th>Semester</th><th>Dhibcaha</th></tr></thead>
+  <tbody>${grades.map(g=>`<tr><td>${studentName(g.studentId)}</td><td>${g.subject}</td><td>${g.term}</td><td><span class="tag ${g.score>=50?'green':'red'}">${g.score}%</span></td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">Lama gelin</td></tr>'}</tbody></table></div>`;
+}
+function renderParentAttendance(){
+  const kids = studentsOfParent(myParentId()).map(k=>k.id);
+  const att = DB.attendance.filter(a=>kids.includes(a.studentId));
+  return `<div class="page-title">Xaadirinta Ilmaha</div>
+  <div class="panel"><table><thead><tr><th>Ilmo</th><th>Taariikh</th><th>Xaalada</th></tr></thead>
+  <tbody>${att.slice().reverse().map(a=>`<tr><td>${studentName(a.studentId)}</td><td>${a.date}</td><td><span class="tag ${a.status==='Xaadir'?'green':'red'}">${a.status}</span></td></tr>`).join('') || '<tr><td colspan="3" class="empty-state">Lama gelin</td></tr>'}</tbody></table></div>`;
+}
+function renderParentFees(){
+  const kids = studentsOfParent(myParentId()).map(k=>k.id);
+  const fees = DB.fees.filter(f=>kids.includes(f.studentId));
+  return `<div class="page-title">Lacagta Ilmaha</div>
+  <div class="panel"><table><thead><tr><th>Ilmo</th><th>Qiimaha</th><th>La bixiyay</th><th>Xaalada</th></tr></thead>
+  <tbody>${fees.map(f=>`<tr><td>${studentName(f.studentId)}</td><td>$${f.amount}</td><td>$${f.paid}</td><td><span class="tag ${f.status==='La bixiyay'?'green':f.status==='Qeyb ahaan'?'yellow':'red'}">${f.status}</span></td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">Lama gelin</td></tr>'}</tbody></table></div>`;
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+</script>
+</body>
+</html>
